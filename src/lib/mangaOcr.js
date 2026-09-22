@@ -107,7 +107,25 @@ async function runEmbeddedYolo(session, ort, image, confidenceThreshold, onProgr
     const offset = row * columns;
     const score = Number(data[offset + 4]);
     if (!Number.isFinite(score) || score < confidenceThreshold) continue;
-    const box = normalizeBox(data[offset], data[offset + 1], data[offset + 2], data[offset + 3], inputSize, inputSize);
+    // Некоторые сборки Manga-Bubble-YOLO отдают координаты уже нормализованными
+    // (0..1), другие — в пикселях входа. Определяем по величине значений.
+    const cx = Number(data[offset]);
+    const cy = Number(data[offset + 1]);
+    const cw = Number(data[offset + 2]);
+    const ch = Number(data[offset + 3]);
+    const isNormalized = Number.isFinite(cx) && Number.isFinite(cy)
+      && Number.isFinite(cw) && Number.isFinite(ch)
+      && cx >= 0 && cx <= 1 && cy >= 0 && cy <= 1
+      && cw >= 0 && cw <= 1 && ch >= 0 && ch <= 1;
+    const lineBox = normalizeBox(
+      cx - cw / 2,
+      cy - ch / 2,
+      cx + cw / 2,
+      cy + ch / 2,
+      isNormalized ? 1 : inputSize,
+      isNormalized ? 1 : inputSize,
+    );
+    const box = { ...lineBox, x: clamp(lineBox.x), y: clamp(lineBox.y), w: clamp(lineBox.w), h: clamp(lineBox.h) };
     if (box.w < 0.01 || box.h < 0.01) continue;
     boxes.push({
       ...box,
@@ -298,6 +316,23 @@ function cropImage(image, box) {
   return canvas;
 }
 
+function normalizeOcrText(text) {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.!?;:])/g, '$1')
+    .trim();
+}
+
+function plausibleText(text) {
+  const trimmed = text.trim();
+  if (trimmed.length < 2) return false;
+  const letters = (trimmed.match(/[\p{L}]/gu) || []).length;
+  if (letters === 0) return false;
+  const digits = (trimmed.match(/\d/g) || []).length;
+  if (digits > 0 && digits >= letters) return false;
+  return true;
+}
+
 function resizedCropData(canvas, targetWidth) {
   const targetHeight = 48;
   const aspect = canvas.width / Math.max(1, canvas.height);
@@ -306,7 +341,7 @@ function resizedCropData(canvas, targetWidth) {
   resized.width = targetWidth;
   resized.height = targetHeight;
   const context = resized.getContext('2d', { willReadFrequently: true });
-  context.fillStyle = '#000';
+  context.fillStyle = '#fff';
   context.fillRect(0, 0, targetWidth, targetHeight);
   context.drawImage(canvas, 0, 0, width, targetHeight);
   const rgba = context.getImageData(0, 0, targetWidth, targetHeight).data;
@@ -370,13 +405,13 @@ async function recognizeCyrillic(session, ort, image, boxes, dictionary, onProgr
     const recognition = decodeCtc(output.data, output.dims, dictionary, index);
     return {
       ...box,
-      text: recognition.text,
-      reading: recognition.text,
+      text: normalizeOcrText(recognition.text),
+      reading: normalizeOcrText(recognition.text),
       score: Math.min(box.score, Math.max(0.05, recognition.confidence)),
     };
   });
   onProgress?.(`Кириллица распознана · ${decoded.filter((item) => item.text).length} строк`);
-  return decoded.filter((item) => item.text.length > 0 && item.score >= 0.18);
+  return decoded.filter((item) => plausibleText(item.text) && item.score >= 0.18);
 }
 
 export async function runEmbeddedMangaInference({ image, confidenceThreshold = 35, onProgress }) {

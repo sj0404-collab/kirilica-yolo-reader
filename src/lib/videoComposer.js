@@ -24,7 +24,7 @@ function loadImage(src) {
   });
 }
 
-async function requestSpeech(text, role) {
+async function requestSpeech(text, role, signal) {
   const voices = [role.voice, 'ru-RU-SvetlanaNeural'].filter((voice, index, list) => voice && list.indexOf(voice) === index);
   let lastError;
   for (const voice of voices) {
@@ -37,7 +37,9 @@ async function requestSpeech(text, role) {
         rate: role.rate || '+0%',
         pitch: role.pitch || '+0Hz',
       }),
+      signal,
     });
+    if (signal?.aborted) throw new Error('video_cancelled');
     if (response.ok) return response.blob();
     lastError = new Error(`Edge TTS не ответил для роли «${role.label}»`);
   }
@@ -73,6 +75,7 @@ function wrapText(context, text, maxWidth) {
 
 function drawCaption(context, line, width, height, progress) {
   if (!line?.text) return;
+  const roleColor = line.roleColor || '#f2a34f';
   const boxWidth = Math.min(width - 56, 590);
   const x = (width - boxWidth) / 2;
   const lines = wrapText(context, line.text, boxWidth - 36).slice(0, 4);
@@ -84,15 +87,20 @@ function drawCaption(context, line, width, height, progress) {
   context.fillStyle = 'rgba(8, 13, 18, .84)';
   drawRoundedRect(context, x, y, boxWidth, boxHeight, 18);
   context.fill();
-  context.strokeStyle = 'rgba(242, 163, 79, .72)';
+  context.strokeStyle = roleColor;
+  context.globalAlpha = 0.72;
   context.lineWidth = 2;
   context.stroke();
-  context.fillStyle = '#f2a34f';
-  context.font = '700 18px system-ui, sans-serif';
-  context.fillText(line.roleLabel || 'Реплика', x + 18, y + 28);
+  context.globalAlpha = 1;
+  context.fillStyle = roleColor;
+  context.beginPath();
+  context.arc(x + 16, y + 13, 4, 0, Math.PI * 2);
+  context.fill();
+  context.font = '700 15px system-ui, sans-serif';
+  context.fillText(line.roleLabel || 'Реплика', x + 26, y + 19);
   context.fillStyle = '#f2f0ea';
   context.font = '600 23px system-ui, sans-serif';
-  lines.forEach((text, index) => context.fillText(text, x + 18, y + 60 + index * lineHeight));
+  lines.forEach((text, index) => context.fillText(text, x + 18, y + 56 + index * lineHeight));
   context.restore();
 }
 
@@ -176,6 +184,7 @@ export async function composeNarratedVideo({
   includeSfx = true,
   animation = 'panels',
   onProgress,
+  signal,
 }) {
   if (!pages?.length) throw new Error('Нет страниц для видео');
   if (!window.MediaRecorder || !window.HTMLCanvasElement?.prototype.captureStream) {
@@ -185,6 +194,7 @@ export async function composeNarratedVideo({
   const pageImages = [];
   const totalPages = pages.length;
   for (let index = 0; index < totalPages; index += 1) {
+    if (signal?.aborted) throw new Error('video_cancelled');
     onProgress?.(`Кадр ${index + 1}/${totalPages}`);
     pageImages.push(await loadImage(pages[index].src));
   }
@@ -207,13 +217,14 @@ export async function composeNarratedVideo({
       const sourceLine = sourceSegment.lines[lineIndex];
       const role = roles.find((candidate) => candidate.id === sourceLine.roleId) || roles[0];
       if (!sourceLine.text?.trim() || !role) continue;
-      onProgress?.(`Озвучка ${pageIndex + 1}/${pages.length} · ${lineIndex + 1}`);
+      onProgress?.(`Озвучка ${pageIndex + 1}/${pages.length} · строка ${lineIndex + 1} · голос ${role.label}`);
       try {
-        const blob = await requestSpeech(sourceLine.text.trim(), role);
+        const blob = await requestSpeech(sourceLine.text.trim(), role, signal);
         const buffer = await audioContext.decodeAudioData(await blob.arrayBuffer());
         const line = {
           ...sourceLine,
           roleLabel: role.label,
+          roleColor: role.color,
           buffer,
           start: lineCursor,
           duration: Math.max(0.7, buffer.duration),
@@ -221,6 +232,7 @@ export async function composeNarratedVideo({
         segment.lines.push(line);
         lineCursor += line.duration + 0.25;
       } catch (error) {
+        if (error?.message === 'video_cancelled') throw error;
         onProgress?.(`Пропущена реплика · ${error.message}`);
       }
     }
@@ -257,6 +269,7 @@ export async function composeNarratedVideo({
     if (musicFile) {
       try {
         const musicBuffer = await audioContext.decodeAudioData(await musicFile.arrayBuffer());
+        if (signal?.aborted) throw new Error('video_cancelled');
         const musicSource = audioContext.createBufferSource();
         musicSource.buffer = musicBuffer;
         musicSource.loop = true;
@@ -297,19 +310,27 @@ export async function composeNarratedVideo({
   recorder.start(1000);
   const startedAt = performance.now();
   let frame = 0;
-  await new Promise((resolve) => {
-    const render = (now) => {
-      const elapsed = Math.min(totalDuration, (now - startedAt) / 1000);
-      const segment = timeline.find((candidate) => elapsed >= candidate.start && elapsed < candidate.start + candidate.duration) || timeline.at(-1);
-      const localElapsed = segment ? elapsed - segment.start : 0;
-      drawFrame(context, pageImages[segment?.pageIndex || 0], segment || { duration: 1, lines: [] }, localElapsed, canvas.width, canvas.height, animation);
-      if (frame % 12 === 0) onProgress?.(`Рендер видео · ${Math.round((elapsed / totalDuration) * 100)}%`);
-      frame += 1;
-      if (elapsed >= totalDuration) resolve();
-      else requestAnimationFrame(render);
-    };
-    requestAnimationFrame(render);
-  });
+  let aborted = false;
+  const abortHandler = () => { aborted = true; };
+  signal?.addEventListener('abort', abortHandler);
+  try {
+    await new Promise((resolve) => {
+      const render = (now) => {
+        if (aborted) { resolve(); return; }
+        const elapsed = Math.min(totalDuration, (now - startedAt) / 1000);
+        const segment = timeline.find((candidate) => elapsed >= candidate.start && elapsed < candidate.start + candidate.duration) || timeline.at(-1);
+        const localElapsed = segment ? elapsed - segment.start : 0;
+        drawFrame(context, pageImages[segment?.pageIndex || 0], segment || { duration: 1, lines: [] }, localElapsed, canvas.width, canvas.height, animation);
+        if (frame % 12 === 0) onProgress?.(`Рендер видео · ${Math.round((elapsed / totalDuration) * 100)}%`);
+        frame += 1;
+        if (elapsed >= totalDuration) resolve();
+        else requestAnimationFrame(render);
+      };
+      requestAnimationFrame(render);
+    });
+  } finally {
+    signal?.removeEventListener('abort', abortHandler);
+  }
 
   recorder.stop();
   const blob = await recordingDone;
@@ -320,5 +341,6 @@ export async function composeNarratedVideo({
   });
   await audioContext.close();
   onProgress?.('Видео готово');
+  if (aborted) throw new Error('video_cancelled');
   return { blob, duration: totalDuration, mimeType: blob.type || 'video/webm' };
 }

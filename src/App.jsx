@@ -234,6 +234,7 @@ function VideoStudio({
   status,
   videoUrl,
   onGenerate,
+  onCancel,
   onClose,
 }) {
   const musicInputRef = useRef(null);
@@ -291,7 +292,7 @@ function VideoStudio({
 
             {videoUrl ? <div className="video-result-card"><div className="video-result-head"><span><Icon name="check" size={15} />{durationLabel}</span><button type="button" onClick={onGenerate}>создать заново</button></div><video src={videoUrl} controls playsInline /><a className="video-download-button" href={videoUrl} download="kirilica-reader.webm"><Icon name="upload" size={16} />Скачать видео</a></div> : <div className="video-empty-preview"><Icon name="video" size={26} /><strong>Предпросмотр появится здесь</strong><span>После генерации можно проверить звук и скачать WebM.</span></div>}
 
-            {generating && <div className="video-progress"><div className="video-progress-top"><span>{status}</span><strong>{progress}%</strong></div><div><i style={{ width: `${progress}%` }} /></div></div>}
+            {generating && <div className="video-progress"><div className="video-progress-top"><span>{status}</span><strong>{progress}%</strong></div><div><i style={{ width: `${progress}%` }} /></div><button type="button" className="video-cancel-button" onClick={onCancel}><Icon name="close" size={14} />Отменить генерацию</button></div>}
             {!generating && status && <div className="video-status"><span className="caption-dot" />{status}</div>}
             <button type="button" className="video-generate-button" onClick={onGenerate} disabled={generating || !pages.length}><Icon name={generating ? 'scan' : 'video'} size={17} />{generating ? 'Собираем ролик…' : videoUrl ? 'Сгенерировать заново' : 'Сгенерировать видео'}</button>
           </div>
@@ -359,6 +360,7 @@ function App() {
   const speechRejectRef = useRef(null);
   const videoUrlRef = useRef(null);
   const videoDetectionCacheRef = useRef(new Map());
+  const videoCancelRef = useRef(null);
 
   const selected = useMemo(
     () => detections.find((item) => item.id === activeId) || detections[0],
@@ -381,6 +383,40 @@ function App() {
     setVideoStatus('');
     setVideoProgress(0);
   };
+
+  // Актуальные обработчики для клавиатурных шорткатов всегда доступны через ref,
+  // чтобы не пересоздавать слушатель на каждом рендере.
+  const keyActionsRef = useRef({});
+  keyActionsRef.current = {
+    run: () => handleRun(),
+    prev: () => adjustPage(-1),
+    next: () => adjustPage(1),
+    toggleOverlay: () => setShowOverlay((value) => !value),
+    toggleFocus: () => setShowFocus((value) => !value),
+  };
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      const target = event.target;
+      const isTyping = target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+      if (isTyping || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.code === 'Space') {
+        event.preventDefault();
+        if (event.repeat) return;
+        keyActionsRef.current.toggleOverlay();
+      } else if (event.key === 'r' || event.key === 'R' || event.key === 'к' || event.key === 'К') {
+        keyActionsRef.current.run();
+      } else if (event.key === 'f' || event.key === 'F' || event.key === 'а' || event.key === 'А') {
+        keyActionsRef.current.toggleFocus();
+      } else if (event.code === 'ArrowRight') {
+        keyActionsRef.current.next();
+      } else if (event.code === 'ArrowLeft') {
+        keyActionsRef.current.prev();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const replacePages = (nextPages) => {
     releaseComicPages(pagesRef.current);
@@ -554,6 +590,8 @@ function App() {
 
   const generateVideo = async () => {
     if (videoGenerating || !pages.length) return;
+    const cancelController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    videoCancelRef.current = cancelController;
     setVideoGenerating(true);
     setVideoProgress(1);
     setVideoStatus('Подготавливаем сценарий…');
@@ -562,6 +600,7 @@ function App() {
       const script = [];
       let roleCursor = 0;
       for (let index = 0; index < pages.length; index += 1) {
+        if (cancelController?.signal.aborted) throw new Error('video_cancelled');
         const pageDetections = await getVideoPageDetections(pages[index], index);
         const lines = pageDetections
           .map((detection) => detection.text?.trim())
@@ -584,6 +623,7 @@ function App() {
         includeMusic: videoMusicEnabled,
         includeSfx: videoSfxEnabled,
         animation: videoAnimation,
+        signal: cancelController?.signal,
         onProgress: (message) => {
           setVideoStatus(message);
           const renderMatch = message.match(/Рендер видео · (\d+)%/);
@@ -599,13 +639,21 @@ function App() {
       setVideoStatus(`Видео готово · ${Math.round(result.duration)} сек · WebM`);
       notify('Видео с озвучкой готово. Его можно прослушать и скачать.');
     } catch (error) {
-      console.error(error);
-      setVideoStatus('Не удалось собрать видео');
-      notify(error?.message || 'Генерация видео не удалась.');
+      if (error?.message === 'video_cancelled') {
+        setVideoStatus('Генерация отменена');
+        notify('Генерация видео отменена.');
+      } else {
+        console.error(error);
+        setVideoStatus('Не удалось собрать видео');
+        notify(error?.message || 'Генерация видео не удалась.');
+      }
     } finally {
+      videoCancelRef.current = null;
       setVideoGenerating(false);
     }
   };
+
+  const cancelVideoGeneration = () => videoCancelRef.current?.abort();
 
   const navigateLibrary = (path) => setLibraryPath(path);
 
@@ -1122,7 +1170,7 @@ function App() {
         <main className="reader-column">
           <div className="reader-heading">
             <div><span className="eyebrow">ТЕСТ / ВЛОЖЕНИЕ 01</span><h1>{activeFixture?.label || fileName || 'Загруженная страница'}</h1></div>
-            <div className="reader-heading-actions"><button type="button" className="quiet-button video-quiet-button" onClick={openVideoStudio} disabled={videoGenerating}><Icon name="video" size={16} />Видео</button><button type="button" className={`quiet-button ${isReading ? 'is-reading' : ''}`} onClick={handleRead}><Icon name="volume" size={16} />{isReading ? 'Остановить' : 'Edge TTS'}</button><button type="button" className="quiet-button" onClick={handleGoogleLens} disabled={lensLoading}><Icon name="scan" size={16} />{lensLoading ? 'Lens…' : 'Google Lens'}</button><button type="button" className="quiet-button" onClick={() => setShowFocus((value) => !value)}><Icon name="maximize" size={16} />{showFocus ? 'Фокус включён' : 'Фокус выключен'}</button><button type="button" className="quiet-button" onClick={() => notify('Горячие клавиши: Space — оверлей, R — запуск YOLO.')}><Icon name="keyboard" size={16} />горячие клавиши</button></div>
+            <div className="reader-heading-actions"><button type="button" className="quiet-button video-quiet-button" onClick={openVideoStudio} disabled={videoGenerating}><Icon name="video" size={16} />Видео</button><button type="button" className={`quiet-button ${isReading ? 'is-reading' : ''}`} onClick={handleRead}><Icon name="volume" size={16} />{isReading ? 'Остановить' : 'Edge TTS'}</button><button type="button" className="quiet-button" onClick={handleGoogleLens} disabled={lensLoading}><Icon name="scan" size={16} />{lensLoading ? 'Lens…' : 'Google Lens'}</button><button type="button" className="quiet-button" onClick={() => setShowFocus((value) => !value)}><Icon name="maximize" size={16} />{showFocus ? 'Фокус включён' : 'Фокус выключен'}</button><button type="button" className="quiet-button" onClick={() => notify('Горячие клавиши: Space — оверлей, R — запуск YOLO, F — фокус, ← → — страницы.')}><Icon name="keyboard" size={16} />горячие клавиши</button></div>
           </div>
 
           <section className="reader-card">
@@ -1276,6 +1324,7 @@ function App() {
         status={videoStatus}
         videoUrl={videoUrl}
         onGenerate={generateVideo}
+        onCancel={cancelVideoGeneration}
         onClose={() => setVideoStudioOpen(false)}
       />}
       {toast && <div className="toast"><span className="toast-icon"><Icon name="check" size={15} /></span>{toast}<button type="button" onClick={() => setToast('')}><Icon name="close" size={14} /></button></div>}

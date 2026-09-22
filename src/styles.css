@@ -497,6 +497,9 @@ h2 { font-size: 17px; font-weight: 700; }
 .video-progress-top strong { color: var(--accent); font: 10px 'DM Mono', monospace; }
 .video-progress > div:last-child { height: 4px; margin-top: 7px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.1); }
 .video-progress i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .25s; }
+.video-progress > .video-progress-top + div { margin-top: 7px; }
+.video-cancel-button { height: 27px; display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; padding: 0 10px; border: 1px solid rgba(235, 139, 131, .3); border-radius: 6px; color: var(--danger); background: rgba(235, 139, 131, .07); font-size: 8px; }
+.video-cancel-button:hover { background: rgba(235, 139, 131, .14); border-color: rgba(235, 139, 131, .5); }
 .video-status { display: flex; align-items: center; gap: 6px; min-height: 22px; color: var(--muted-2); font: 8px 'DM Mono', monospace; }
 .video-generate-button { height: 38px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; border-radius: 7px; color: #1d1710; background: var(--accent); box-shadow: 0 6px 18px rgba(242,163,79,.16); font-size: 10px; font-weight: 800; }
 .video-generate-button:hover { background: #ffb865; }
