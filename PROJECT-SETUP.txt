@@ -1,0 +1,25 @@
+KIRILICA VIDEO — project package with embedded YOLO/OCR models
+
+Contents:
+- src/ — React application, archive library, video studio, OCR pipeline
+- public/models/ — embedded YOLO + PP-OCR ONNX weights and Cyrillic dictionary
+- public/test-assets/ — test screenshots
+- android/ — Capacitor Android wrapper source
+- resources/ — auto-refresh icon and KIRILICA VIDEO cover
+- apk/KIRILICA-VIDEO-debug.apk — prebuilt debug APK
+
+Web build:
+  npm install
+  npm run build
+  npm run dev
+
+Android build (requires Android SDK 34, build-tools 34.0.0, Java 17):
+  npm install
+  npm run build
+  npx cap copy android
+  cd android
+  ./gradlew assembleDebug
+
+The APK includes the React HTML/assets and local ONNX files. Edge TTS, Google Lens,
+and CBR server fallback still require network access; CBZ and local OCR work inside
+ the packaged app. This is a debug APK and is not Play Store signed.

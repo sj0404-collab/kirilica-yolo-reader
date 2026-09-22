@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1260" viewBox="0 0 900 1260">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8f1e3"/>
+      <stop offset="1" stop-color="#e9dcc8"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b7d9df"/>
+      <stop offset="1" stop-color="#edf0de"/>
+    </linearGradient>
+    <pattern id="grain" width="17" height="17" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="4" r="1" fill="#8c7b6e" opacity=".10"/>
+      <circle cx="13" cy="12" r=".8" fill="#8c7b6e" opacity=".08"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#4e4139" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="900" height="1260" fill="url(#paper)"/>
+  <rect width="900" height="1260" fill="url(#grain)"/>
+  <rect x="40" y="40" width="820" height="1180" rx="5" fill="none" stroke="#6d5b50" stroke-width="7"/>
+  <rect x="78" y="80" width="744" height="450" fill="url(#sky)" stroke="#17191c" stroke-width="8"/>
+  <path d="M82 388 C170 320 222 342 292 379 C368 419 420 357 486 371 C548 384 610 322 690 360 C746 386 783 354 818 328 L818 526 L82 526Z" fill="#6b8580" opacity=".9"/>
+  <path d="M82 435 C184 392 223 431 311 449 C407 469 448 422 552 446 C644 467 707 422 818 446 L818 526 L82 526Z" fill="#374f57" opacity=".85"/>
+  <path d="M188 526 L245 283 L278 526 M245 338 L159 398 M245 368 L337 403" fill="none" stroke="#24353a" stroke-width="10"/>
+  <path d="M659 526 L703 275 L739 526 M701 332 L617 383 M703 362 L784 397" fill="none" stroke="#24353a" stroke-width="10"/>
+  <path d="M386 526 C407 479 427 444 449 418 C468 446 486 477 508 526" fill="#343d45"/>
+  <path d="M392 482 C423 464 469 464 502 483" fill="none" stroke="#17191c" stroke-width="8"/>
+  <path d="M415 430 C420 384 474 370 490 429" fill="#3a2b2a" stroke="#17191c" stroke-width="7"/>
+  <circle cx="442" cy="430" r="7" fill="#f0d3ae"/><circle cx="472" cy="430" r="7" fill="#f0d3ae"/>
+  <path d="M441 463 C454 473 470 473 483 462" fill="none" stroke="#f0d3ae" stroke-width="6" stroke-linecap="round"/>
+  <path d="M132 149 C180 113 283 117 323 160 C339 178 327 215 302 229 L327 269 L271 240 C219 250 146 230 125 195 C112 174 117 159 132 149Z" fill="#fffdf7" stroke="#17191c" stroke-width="7"/>
+  <text x="151" y="169" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#17191c">Мы всё-таки</text>
+  <text x="151" y="198" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#17191c">нашли выход.</text>
+  <path d="M578 130 C630 99 748 110 775 155 C791 183 773 218 735 233 L752 273 L702 242 C641 249 590 229 574 194 C566 174 563 143 578 130Z" fill="#fffdf7" stroke="#17191c" stroke-width="7"/>
+  <text x="598" y="164" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#17191c">Тогда идём.</text>
+  <text x="598" y="193" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#17191c">Без шума.</text>
+  <rect x="78" y="565" width="356" height="613" fill="#c4d5d1" stroke="#17191c" stroke-width="8"/>
+  <path d="M80 962 L171 813 L238 902 L302 768 L432 987 L432 1178 L80 1178Z" fill="#688382"/>
+  <path d="M79 1072 C163 1016 199 1058 266 1069 C329 1079 378 1032 432 1042 L432 1178 L79 1178Z" fill="#4c676b"/>
+  <path d="M250 1178 C252 1088 252 1005 278 943 C296 899 329 865 360 840 C360 955 384 1056 410 1178Z" fill="#1e2930"/>
+  <path d="M276 944 C287 910 302 885 324 868 C352 896 365 918 366 953" fill="#453a3b" stroke="#15191c" stroke-width="7"/>
+  <circle cx="303" cy="947" r="6" fill="#f0d3ae"/><circle cx="335" cy="946" r="6" fill="#f0d3ae"/>
+  <path d="M302 974 Q321 988 341 972" fill="none" stroke="#f0d3ae" stroke-width="5" stroke-linecap="round"/>
+  <path d="M126 644 C171 615 261 628 282 660 C298 684 278 711 250 725 L263 754 L226 732 C174 739 133 721 119 688 C111 668 113 652 126 644Z" fill="#fffdf7" stroke="#17191c" stroke-width="7"/>
+  <text x="145" y="668" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#17191c">Осторожно,</text>
+  <text x="145" y="696" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#17191c">там темно.</text>
+  <rect x="466" y="565" width="356" height="613" fill="#d9c6b8" stroke="#17191c" stroke-width="8"/>
+  <path d="M468 880 C553 805 609 830 673 876 C731 917 780 886 820 842 L820 1178 L468 1178Z" fill="#846a67"/>
+  <path d="M468 1010 C537 974 578 1012 649 1026 C714 1039 766 1014 820 993 L820 1178 L468 1178Z" fill="#523f46"/>
+  <path d="M643 1178 C625 1083 621 1007 651 942 C674 893 711 861 748 841 C754 957 775 1060 800 1178Z" fill="#22242d"/>
+  <path d="M656 943 C671 906 696 877 723 861 C753 888 765 918 764 953" fill="#5b323c" stroke="#17191c" stroke-width="7"/>
+  <circle cx="686" cy="947" r="6" fill="#f0d3ae"/><circle cx="720" cy="947" r="6" fill="#f0d3ae"/>
+  <path d="M685 977 Q703 966 720 978" fill="none" stroke="#f0d3ae" stroke-width="5" stroke-linecap="round"/>
+  <path d="M557 645 C606 610 710 619 744 659 C765 685 747 718 708 731 L725 769 L675 741 C622 746 571 728 550 692 C538 671 541 656 557 645Z" fill="#fffdf7" stroke="#17191c" stroke-width="7"/>
+  <text x="577" y="670" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#17191c">Я рядом.</text>
+  <text x="577" y="698" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#17191c">Не бойся.</text>
+  <text x="450" y="1212" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#6d5b50" letter-spacing="4">KIRILICA / 01</text>
+</svg>

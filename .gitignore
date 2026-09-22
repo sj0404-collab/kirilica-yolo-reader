@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+.cache/
+.eslintcache
+
+# Capacitor
+android/app/build/
+android/app/release/
+
+# Android
+*.apk
+*.aab
+
+# Large model files (downloaded at build time or in public/models)
+public/models/*.onnx
+
+# Vite
+.vite/
+
+# Coverage
+coverage/

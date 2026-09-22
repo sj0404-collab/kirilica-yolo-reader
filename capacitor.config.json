@@ -1,0 +1,8 @@
+{
+  "appId": "io.kirilica.video",
+  "appName": "KIRILICA VIDEO",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}

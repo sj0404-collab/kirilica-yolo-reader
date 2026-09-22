@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1600" viewBox="0 0 1080 1600" role="img" aria-labelledby="title desc">
+  <title id="title">KIRILICA VIDEO</title>
+  <desc id="desc">Обложка приложения для чтения манги и генерации видео с иконкой автообновления.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0f14"/>
+      <stop offset="0.62" stop-color="#17232c"/>
+      <stop offset="1" stop-color="#0b0f14"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffc477"/>
+      <stop offset="1" stop-color="#df7e2e"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="18" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1080" height="1600" fill="url(#bg)"/>
+  <circle cx="850" cy="170" r="240" fill="#7fcad0" opacity=".07"/>
+  <circle cx="130" cy="1350" r="310" fill="#f2a34f" opacity=".06"/>
+  <path d="M80 260h920M80 1320h920" stroke="#ffffff" stroke-opacity=".08"/>
+  <g transform="translate(84 92)">
+    <rect width="74" height="74" rx="20" fill="#f2a34f" fill-opacity=".17" stroke="#f2a34f" stroke-opacity=".58" stroke-width="2"/>
+    <path d="M22 25h30v29H22z" fill="none" stroke="#f2a34f" stroke-width="4"/>
+    <path d="M28 33h18M28 41h13M28 49h16" stroke="#f2a34f" stroke-width="3" stroke-linecap="round"/>
+    <path d="M55 21a14 14 0 1 1-5 27" fill="none" stroke="#98d9b3" stroke-width="4" stroke-linecap="round"/>
+    <path d="m53 18 4 4-5 4" fill="none" stroke="#98d9b3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="84" y="390" fill="#f0f3f5" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="10">KIRILICA</text>
+  <text x="90" y="472" fill="#f2a34f" font-family="monospace" font-size="30" letter-spacing="11">VIDEO READER</text>
+  <text x="88" y="560" fill="#9caab4" font-family="Arial, sans-serif" font-size="32">Манга · озвучка · роли · движение</text>
+  <g transform="translate(130 690)" filter="url(#glow)">
+    <rect x="0" y="0" width="820" height="530" rx="28" fill="#0d141b" stroke="#7fcad0" stroke-opacity=".32" stroke-width="3"/>
+    <path d="M80 88h660v350H80z" fill="#121b23" stroke="#ffffff" stroke-opacity=".1"/>
+    <path d="M112 120h278v145H112zM420 120h288v145H420zM112 292h190v114H112zM330 292h378v114H330z" fill="#1e3039" stroke="#f2a34f" stroke-opacity=".7" stroke-width="5"/>
+    <path d="M141 178c46-48 106-38 171 20M447 213c49-66 125-55 218 5M145 354c35-29 82-23 122 8M364 332c75-25 157-19 293 22" fill="none" stroke="#98d9b3" stroke-opacity=".65" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="680" cy="72" r="74" fill="#f2a34f"/>
+    <path d="M680 28a45 45 0 0 1 39 67M680 116a45 45 0 0 1-39-67" fill="none" stroke="#11161d" stroke-width="10" stroke-linecap="round"/>
+    <path d="m716 87 5 18-18-2M644 58l-5-18 18 2" fill="none" stroke="#11161d" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(86 1370)">
+    <circle cx="12" cy="12" r="6" fill="#98d9b3"/>
+    <text x="34" y="20" fill="#98d9b3" font-family="monospace" font-size="23" letter-spacing="3">АВТООБНОВЛЕНИЕ БИБЛИОТЕКИ</text>
+    <text x="0" y="76" fill="#73838e" font-family="monospace" font-size="18" letter-spacing="2">CBZ / CBR · EDGE TTS · WEBM</text>
+  </g>
+</svg>

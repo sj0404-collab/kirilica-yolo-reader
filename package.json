@@ -1,0 +1,27 @@
+{
+  "name": "kirilica-yolo-reader",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.2",
+    "@capacitor/core": "^6.2.2",
+    "@vitejs/plugin-react": "latest",
+    "edge-tts-universal": "^1.4.0",
+    "fflate": "^0.8.3",
+    "node-unrar-js": "^2.0.2",
+    "onnxruntime-web": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.2"
+  }
+}
